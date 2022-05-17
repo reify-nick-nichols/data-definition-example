@@ -161,18 +161,20 @@ A sample malli definition and basic uses are available in [`sheep/malli`](src/sh
 - The code defining a spec is extensible, meaning future, backwards-compatible additions may be made
 - The registry is defined by a protocol, so it may be replaced and substituted at runtime
 - The data definitions are plain clojure data structures, so they can be operated on with normal clojure functions
-- Metosin documentation can be sparse and difficult to navigate
 - Malli can do some schema inference from sampled data, making initial development quicker
+- Some devtool integration with kondo/clojure-lsp, but very beta
 
 #### Malli Cons
 
 - Malli definitions aren't drop-in replacements for clojure specs
 - Libraries leveraging external data definitions must be extended to use Malli definitions in place of clojure specs
+- Metosin documentation can be sparse and difficult to navigate
 
 ### Common Pros and Cons
 
 - When defining maps, all three libraries have a syntax for optional/required keys. This conflates what data may be present in a map with what may be required for a given different sets of functionality. The second iteration of spec plans to address this, but is years away.
 - Each library allows for easy composability of validation functions
+- 100% opt-in instrumentation of functions. Can be enabled for dev/testing and disabled for production.
 - Out-of-the-box validation middleware for Compojure/Reitit provide adapters for all three implementations
 
 ## Copyright

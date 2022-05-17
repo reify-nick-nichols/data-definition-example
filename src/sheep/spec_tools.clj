@@ -1,6 +1,7 @@
 (ns sheep.spec-tools
   (:require [clojure.spec.alpha :as s]
             [clojure.spec.gen.alpha :as gen]
+            [clojure.spec.test.alpha :as stest]
             [clojure.string :as str]
             [sheep.data :as sheep]
             [spec-tools.core :as st]
@@ -83,4 +84,26 @@
   
   ;; Swagger generation from specs (Also works for OpenAPI and JSON Schema)
   (swagger/transform ::sheep)
+
+  ;; Function Specs
+  (defn sheep->kg
+    [sheep]
+    (if (= :kg (get-in sheep [:weight :unit]))
+      (get-in sheep [:weight :amount])
+      (* 2.20462 (get-in sheep [:weight :amount]))))
+  
+  (defn sheep->kg*
+    [sheep]
+    (if (s/valid? ::sheep sheep)
+      (sheep->kg sheep)
+      (throw (AssertionError. "You didn't give me a sheep!"))))
+
+  (s/fdef sheep->kg
+    :args (s/cat :sheep ::sheep)
+    :ret ::amount)
+
+  (sheep->kg 1)
+  (sheep->kg sheep/derby)
+  (stest/check `sheep->kg)
+  (stest/instrument `sheep->kg)
   )

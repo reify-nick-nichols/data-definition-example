@@ -2,6 +2,7 @@
   (:require [malli.core :as m]
             [malli.error :as me]
             [malli.generator :as mg]
+            [malli.instrument :as mi]
             [malli.json-schema :as json-schema]
             [malli.provider :as mp]
             [malli.transform :as mt]
@@ -76,4 +77,26 @@
 
   ;; JSON Schema generation from malli definitions
   (json-schema/transform sheep)
+
+  ;; Function Specs
+  (defn sheep->kg
+    [sheep*]
+    (if (= :kg (get-in sheep* [:weight :unit]))
+      (get-in sheep* [:weight :amount])
+      (* 2.20462 (get-in sheep* [:weight :amount]))))
+
+  (defn sheep->kg*
+    [sheep*]
+    (if (m/validate sheep sheep*)
+      (sheep->kg sheep*)
+      (throw (AssertionError. "You didn't give me a sheep!"))))
+  
+  (sheep->kg 1)
+  (sheep->kg sheep/derby)
+
+  (def =>sheep->kg
+    (m/schema [:=> [:cat sheep] number?]))
+
+  (m/=> sheep->kg =>sheep->kg)
+  (mi/instrument!)
   )
