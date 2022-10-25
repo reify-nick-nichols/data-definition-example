@@ -36,7 +36,7 @@ In functional languages, we often write predicates to inspect data; however, thi
 
 ## Problem Statement
 
-As we consider more complex data structures and more complex rules around what is and is not valid, we need a mechanism to programatically encode, describe, and check the data we might operate on.
+As we consider more complex data structures and more complex rules around what is and is not valid, we need a mechanism to programmatically encode, describe, and check the data we might operate on.
 This mechanism should be robust enough to handle the common needs of modern systems and extensible to handle future needs.
 
 In Clojure, there are three primary libraries used to handle these needs:
@@ -45,7 +45,7 @@ In Clojure, there are three primary libraries used to handle these needs:
 - [metosin/spec-tools](https://github.com/metosin/spec-tools)
 - [metosin/malli](https://github.com/metosin/malli)
 
-In this overview, we'll cover each tool incrememntally to discuss what is and is not solved by each.
+In this overview, we'll cover each tool incrementally to discuss what is and is not solved by each.
 
 ## Sample Problem
 
@@ -110,9 +110,9 @@ A sample spec and basic uses are available in [`sheep/spec_tools`](src/sheep/spe
 Metosin developed `spec-tools` to address many of the common problems and challenges developers encountered while using `clojure.spec`.
 The biggest additions were:
 
-- A more robust and extensivle interface that allowed structured data to be transformed into specs
+- A more robust and extensive interface that allowed structured data to be transformed into specs
 - Built-in tools to handle common needs
-  - Coercing data from strings/json into clojure types and datastructures
+  - Coercing data from strings/json into clojure types and data structures
   - Generating common data definition formats
     - OpenAPI
     - Swagger
@@ -150,7 +150,7 @@ This stemmed from multiple needs and pressures:
 - The underlying macros of `clojure.spec` lock a lot of implementation choices to compile time rather than run time.
 
 During development, they also changed the syntax significantly- with data definitions looking much more like hiccup.
-Additionally, registries can definied by users, with a sane default, allowing them to be dynamically loaded.
+Additionally, registries can defined by users, with a sane default, allowing them to be dynamically loaded.
 
 A sample malli definition and basic uses are available in [`sheep/malli`](src/sheep/malli.clj).
 
@@ -176,6 +176,77 @@ A sample malli definition and basic uses are available in [`sheep/malli`](src/sh
 - Each library allows for easy composability of validation functions
 - 100% opt-in instrumentation of functions. Can be enabled for dev/testing and disabled for production.
 - Out-of-the-box validation middleware for Compojure/Reitit provide adapters for all three implementations
+
+## Data Generation
+
+Now that we know how to specify the shape of our domain data and have written some functions, we need to test those functions and make sure they work.
+To understand our options while testing, lets first talk about what a function is.
+
+### Functions
+
+Mathematically, functions are a way to describe relationships between sets of values.
+A function must be able to map every value in it *domain* to a single value in its *range*.
+
+Assume we're operating on a machine without memory limitations.
+On that machine, `inc` is a function from the set of all integers to the set of all integers.
+If we think of a mapping as a literal, clojure map, we can describe a function as a hashmap from the map's keys to its values.
+
+```clj
+{0 1
+ 1 2
+ 2 3
+ 3 4
+ ...}
+```
+
+The only restrictions applied to this mapping are:
+
+1. Each domain value maps to exactly one value in the range
+2. Every value in the domain must map to some value in the range
+
+However, production programs tend to be sufficiently complex that we can't efficiently encode every function as a literal mapping between values.
+We're often held to timelines, and naturally try to avoid tedious work.
+
+Therefore, most programmers consider a function "mathematically pure" if the following properties apply:
+
+1. Identical arguments always return identical values
+2. The functions does not mutate the value of an external entity
+
+So, how do we know the programs we write correctly map values in our business domain?
+
+### Tests
+
+Tests are assertions about the mappings our programs perform.
+The most basic tests assert that a single element in a function's domain maps to a specific element in the function's range.
+This is a helpful example for humans, as it provides a concrete example of the code in use.
+Further cases may be enumerated to display how a mapping behaves with values likely to cause issues.
+In the case of functions operating on numbers, a programmer may explicitly test the behaviors of -1, 0, and 1.
+
+However, these tests only describe the behavior of values we explicitly declare- and, if we could explicitly declare the behavior, we could always write a direct mapping.
+This is a problem, because it only describes the behavior of a program in the cases we've enumerated.
+Even if we pick values likely to cause issues, we can't be certain of correctness.
+
+So, we have two choices:
+
+1. Test larger portions of the domain
+2. Making stronger assertions about properties of the mapping
+
+#### Generative Tests
+
+By writing tests with randomized inputs, it's far less likely that we've accidentally cherry-picked domain values which work as expected.
+clojure.spec, spec-tools, and malli all allow us to re-use our data specifications to generate data.
+
+#### Property Tests
+
+Recall that the behavior of addition changes based on the positivity, negativity, and relative magnitude of the inputs:
+
+- Two positive integers added together will produce a positive integer of greater magnitude.
+- Two negative integers added together will produce a negative integer of greater magnitude.
+- Adding any number and zero produces the original number
+- And so on and so forth
+
+If we no longer can rely on the domain values we use for our tests, it's likely that we'll be unable to write static assertions.
+Therefore, we need to write tests that assert properties about the relationship between our domain and range.
 
 ## Copyright
 

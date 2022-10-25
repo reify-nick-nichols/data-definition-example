@@ -3,6 +3,7 @@
             [clojure.spec.gen.alpha :as gen]
             [clojure.spec.test.alpha :as stest]
             [clojure.string :as str]
+            [clojure.test.check.generators :as generators]
             [sheep.data :as sheep]
             [spec-tools.core :as st]
             [spec-tools.swagger.core :as swagger]))
@@ -23,6 +24,7 @@
 
 (s/def ::amount
   (st/spec {:type                :double
+            :gen                 #(generators/double* {:infinite? false :NaN? false :min 0})
             :spec                (s/and number? pos?)
             :description         "The numeric value of a sheep's weight"
             :json-schema/example 75.2}))
@@ -81,7 +83,7 @@
   ;; Generate arbitrary conforming examples
   (gen/generate (s/gen ::sheep))
   (gen/generate (s/gen ::herd))
-  
+
   ;; Swagger generation from specs (Also works for OpenAPI and JSON Schema)
   (swagger/transform ::sheep)
 
@@ -91,7 +93,7 @@
     (if (= :kg (get-in sheep [:weight :unit]))
       (get-in sheep [:weight :amount])
       (* 2.20462 (get-in sheep [:weight :amount]))))
-  
+
   (defn sheep->kg*
     [sheep]
     (if (s/valid? ::sheep sheep)
