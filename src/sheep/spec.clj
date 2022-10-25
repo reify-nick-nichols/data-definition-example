@@ -3,6 +3,7 @@
             [clojure.spec.gen.alpha :as gen]
             [clojure.spec.test.alpha :as stest]
             [clojure.string :as str]
+            [clojure.test.check.generators :as generators]
             [sheep.data :as sheep]))
 
 (s/def ::name
@@ -12,7 +13,9 @@
        (s/and int? pos?))
 
 (s/def ::amount
-       (s/and number? pos?))
+       (s/with-gen
+         (s/and number? pos?)
+        #(s/gen (generators/double* {:infinite? false :NaN? false :min 0}))))
 
 (s/def ::unit #{:kg :lb})
 
@@ -55,7 +58,7 @@
     (if (= :kg (get-in sheep [:weight :unit]))
       (get-in sheep [:weight :amount])
       (* 2.20462 (get-in sheep [:weight :amount]))))
-  
+
   (defn sheep->kg*
     [sheep]
     (if (s/valid? ::sheep sheep)
@@ -65,9 +68,8 @@
   (s/fdef sheep->kg
     :args (s/cat :sheep ::sheep)
     :ret ::amount)
-  
+
   (sheep->kg 1)
   (sheep->kg sheep/derby)
   (stest/check `sheep->kg)
-  (stest/instrument `sheep->kg)
-  )
+  (stest/instrument `sheep->kg))
