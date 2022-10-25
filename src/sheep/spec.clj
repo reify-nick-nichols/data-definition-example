@@ -13,9 +13,7 @@
        (s/and int? pos?))
 
 (s/def ::amount
-       (s/with-gen
-         (s/and number? pos?)
-        #(s/gen (generators/double* {:infinite? false :NaN? false :min 0}))))
+         (s/and number? pos?))
 
 (s/def ::unit #{:kg :lb})
 

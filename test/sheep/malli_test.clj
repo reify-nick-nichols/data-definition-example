@@ -19,19 +19,19 @@
       (is (<= weight weight-in-kg)))))
 
 ;; Our spec defines weights as positive numbers, so the value should be positive
-(check.test/defspec sheep->kg-is-positive 100
+(check.test/defspec sheep->kg-is-positive 1000
   (prop/for-all [test-sheep (genr/generator sut/sheep)]
                 (pos? (sheep/sheep->kg test-sheep))))
 
 ;; If the weight was in kilos, converting it wouldn't change the value
-(check.test/defspec sheep->kg-identity-for-kilos 100
+(check.test/defspec sheep->kg-identity-for-kilos 1000
   (prop/for-all [test-sheep (genr/generator sut/sheep)]
                 (let [sheep* (assoc-in test-sheep [:weight :unit] :kg)
                       sheep-weight (get-in test-sheep [:weight :amount])]
                   (= sheep-weight (sheep/sheep->kg sheep*)))))
 
 ;; If the weight was in pounds, the new weight value is greater
-(check.test/defspec sheep->kg-larger-for-pounds 100
+(check.test/defspec sheep->kg-larger-for-pounds 1000
   (prop/for-all [test-sheep (genr/generator sut/sheep)]
                 (let [sheep*       (assoc-in test-sheep [:weight :unit] :lb)
                       sheep-weight (get-in test-sheep [:weight :amount])]
