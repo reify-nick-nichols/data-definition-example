@@ -1,0 +1,9 @@
+{:linters {:unresolved-symbol {:exclude [(malli.core/=>)]},
+           :type-mismatch {:namespaces {sheep.malli {sheep->kg {:arities {1 {:args [{:op :keys,
+                                                                                     :req {:name :string,
+                                                                                           :age :any,
+                                                                                           :weight {:op :keys,
+                                                                                                    :req {:amount :any,
+                                                                                                          :unit :keyword}},
+                                                                                           :shorn? :boolean}}],
+                                                                             :ret :number}}}}}}}}
