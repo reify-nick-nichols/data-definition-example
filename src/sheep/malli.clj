@@ -1,5 +1,6 @@
 (ns sheep.malli
   (:require [malli.core :as m]
+            [malli.dev.pretty :as pretty]
             [malli.error :as me]
             [malli.generator :as mg]
             [malli.instrument :as mi]
@@ -95,10 +96,12 @@
       (throw (AssertionError. "You didn't give me a sheep!"))))
 
   (sheep->kg 1)
+  (sheep->kg
+    {:name 1 :age 2 :weight {:amount 82.1 :unit :kg} :shorn? true})
   (sheep->kg sheep/derby)
 
   (def =>sheep->kg
     (m/schema [:=> [:cat sheep] number?]))
 
   (m/=> sheep->kg =>sheep->kg)
-  (mi/instrument!))
+  (mi/instrument! {:report (pretty/reporter)}))

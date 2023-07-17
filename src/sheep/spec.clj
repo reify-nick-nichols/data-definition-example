@@ -68,6 +68,8 @@
     :ret ::amount)
 
   (sheep->kg 1)
+  (sheep->kg
+    {:name 1 :age 2 :weight {:amount 82.1 :unit :kg} :shorn? true})
   (sheep->kg sheep/derby)
   (stest/check `sheep->kg)
   (stest/instrument `sheep->kg))
